@@ -1,0 +1,6 @@
+# V compiles `v run build.vsh`, and the script it produces is named `build`,
+# which is why the artifacts live in target/ and not in build/.
+/build
+/target
+*.o
+*.a

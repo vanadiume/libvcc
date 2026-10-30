@@ -1,0 +1,37 @@
+#include <stdio.h>
+
+#include "harness.h"
+#include "tests.h"
+
+struct libvcc_test_group {
+	const char *name;
+	void (*run)(void);
+};
+
+int main(void)
+{
+	static const struct libvcc_test_group groups[] = {
+		{ "div64", libvcc_test_div64 },
+		{ "div32", libvcc_test_div32 },
+		{ "shift", libvcc_test_shift },
+		{ "bits", libvcc_test_bits },
+		{ "mul", libvcc_test_mul }
+	};
+	unsigned long i;
+	unsigned long long checks, failures;
+	int failed;
+
+	failed = 0;
+	for (i = 0; i < sizeof(groups) / sizeof(groups[0]); i++) {
+		checks = libvcc_test_checks;
+		failures = libvcc_test_failures;
+		groups[i].run();
+		if (!libvcc_test_report(groups[i].name,
+		                        libvcc_test_checks - checks,
+		                        libvcc_test_failures - failures))
+			failed = 1;
+	}
+	if (!libvcc_test_total())
+		failed = 1;
+	return failed;
+}
