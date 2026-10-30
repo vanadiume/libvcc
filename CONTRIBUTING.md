@@ -12,7 +12,7 @@ how the tree is written, and the rules that come before the rest.
 ## Getting set up
 
 You need V to run `build.vsh`, a C compiler from the matrix, and `ar`. VCC is
-found through `$VCC`, then `PATH`, then `../vcc/vcc`; any of the four can be
+found through `$VCC`, then `PATH`, then `../vcc/vcc`; any of the three can be
 named with `--cc`.
 
 ```sh

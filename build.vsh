@@ -21,7 +21,7 @@
 
 import os
 
-const matrix = ['vcc', 'gcc', 'clang', 'tcc']
+const matrix = ['vcc', 'gcc', 'clang']
 const steps = ['build', 'test', 'check', 'clean', 'list']
 const archive_name = 'libvcc.a'
 
@@ -110,7 +110,7 @@ fn usage() {
 	println('With no step, build then test with one compiler.')
 	println('')
 	println('Options:')
-	println('  --cc NAME       vcc, gcc, clang or tcc (default: vcc, gcc, clang, tcc)')
+	println('  --cc NAME       vcc, gcc or clang (default: vcc, gcc, clang)')
 	println('  --require NAME  with check, a compiler whose absence is a failure')
 	println('  --portable      use the portable clz path (-DLIBVCC_PORTABLE=1)')
 	println('  --debug         -O0 -g on every compiler except vcc, which is -O0')

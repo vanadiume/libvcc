@@ -8,7 +8,7 @@ is the human-facing version.
 
 libvcc is VCC's runtime library: the helpers a compiled program calls when the
 target has no instruction for an operation. It is also where VCC starts being
-more than one tree. A helper here is built and tested by four C compilers
+more than one tree. A helper here is built and tested by three C compilers
 without building a compiler, so the runtime can change without the parser or the
 back end changing with it.
 
@@ -22,11 +22,9 @@ same job.
    used throughout and needs no gate. `__builtin_clzll` is behind
    `LIBVCC_HAVE_BUILTIN_CLZLL` in `include/libvcc/compiler.h`, with a portable
    fallback that `-DLIBVCC_PORTABLE=1` selects and that `check` builds and runs.
-   tcc takes the fallback permanently: it parses the builtin and emits a call
-   into `libtcc1`, which is a dependency the archive does not take. Any further
-   extension gets the same treatment: a gate in that header, a fallback beside
-   it, and a lane that exercises both. An extension that cannot be built and run
-   on every compiler in the matrix stays out.
+   Any further extension gets the same treatment: a gate in that header, a
+   fallback beside it, and a lane that exercises both. An extension that cannot
+   be built and run on every compiler in the matrix stays out.
 2. **The archive calls nothing.** No libc, no system header, no `abort`. A helper
    that needs one is a design discussion before it is a link flag. The check is
    `nm -u target/gcc/libvcc.a`: the only names are `__clzdi2` and `__clzsi2`,
@@ -43,10 +41,10 @@ same job.
 
 ```sh
 v run build.vsh                    # build and test with the first compiler found
-v run build.vsh --cc gcc           # name one: vcc, gcc, clang or tcc
+v run build.vsh --cc gcc           # name one: vcc, gcc or clang
 v run build.vsh test --portable    # the fallback path of the clz gate
 v run build.vsh check              # every compiler, both paths; the gate
-v run build.vsh check --require gcc,clang,tcc
+v run build.vsh check --require gcc,clang
 v run build.vsh clean
 ar t target/gcc/libvcc.a           # read the archive back
 nm -u target/gcc/libvcc.a          # the archive's dependencies
@@ -68,7 +66,7 @@ compiler named with `--require` that is missing is a failure rather than a skip.
 
 ## What costs time
 
-Measured on vcc 0.0.2, gcc 16.2.1, clang 23.1.3 and tcc 0.9.28rc.
+Measured on vcc 0.0.2, gcc 16.2.1 and clang 23.1.3.
 
 - **vcc -O1 and above mistype an arithmetic expression used directly as an
   operand of `&`, `|`, `^` or a shift.** The reproducer is
@@ -87,13 +85,9 @@ Measured on vcc 0.0.2, gcc 16.2.1, clang 23.1.3 and tcc 0.9.28rc.
   `unsupported: the value is one this back end cannot size, so it cannot be
   stored`; a 32-bit loop counter fixes it. This is the same family as the -O1
   bug, and why that loop declares `k`.
-- **tcc has no `__int128`; vcc has the type but no values of that width.** A
-  gcc/clang-only 128-bit file would compile and be unusable by the compiler this
-  library exists for.
-- **tcc's `__builtin_clzll` is a call, not an instruction.** The tcc archive
-  named it in `nm -u` until the gate was turned off for tcc. The portable loop
-  is what that lane runs now, and it is why the gate is per compiler and not one
-  flag across the matrix.
+- **vcc has `__int128` as a type but no values of that width.** A gcc/clang-only
+  128-bit file would compile and be unusable by the compiler this library exists
+  for.
 - **gcc and clang need `-fno-stack-protector` here.** With the distribution
   defaults measured, `__udivmoddi4`'s address-taken remainder gets a canary and
   the object gains an undefined `__stack_chk_fail`. `build.vsh` passes

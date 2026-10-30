@@ -4,7 +4,7 @@
 /*
  * A check counts itself and prints the failure at the line it was written on.
  * Nothing here needs a C99 format string or a variable-argument function: the
- * tests are compiled by the same four compilers as the library, and a test
+ * tests are compiled by the same three compilers as the library, and a test
  * harness that only works under gcc would hide the cases that matter.
  */
 
