@@ -12,8 +12,6 @@
  * promised.
  *
  * Each half is computed into a named temporary before the two are combined.
- * vcc's -O1 and above mistype an arithmetic expression used directly as an
- * operand of |, and a temporary is the shape it reads; see AGENTS.md.
  */
 
 long long __ashldi3(long long a, int b)

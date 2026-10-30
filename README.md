@@ -78,11 +78,8 @@ Measured with the compilers this tree was bootstrapped on: vcc 0.0.2, gcc
 16.2.1, clang 23.1.3. `v run build.vsh check` prints the versions it finds.
 
 - **vcc** identifies itself with `__VCC__`. That is asked first, because vcc also
-  defines `__GNUC__` in a GNU dialect. Its lane is built at `-O0`: vcc's -O1 and
-  above mistype an arithmetic expression used directly as an operand of `&`,
-  `|`, `^` or a shift, and refuse the file. `AGENTS.md` carries the reproducer
-  and the temporary-variable shape that avoids it. The lane moves when the
-  optimizer does.
+  defines `__GNUC__` in a GNU dialect. Its lane is built at `-O2` like the other
+  two, which needs a vcc built after the optimizer fix in vanadiume/vcc#10.
 - **gcc** and **clang** are built at `-O2` with `-ffreestanding
   -fno-stack-protector`, so the archive stays free of libc. Distribution
   defaults would otherwise put `__stack_chk_fail` in two objects.

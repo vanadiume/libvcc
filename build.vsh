@@ -10,11 +10,9 @@
 // assumed. `check` is the gate; a missing compiler is reported, and one named
 // with --require is a failure.
 //
-// vcc is always built at -O0. Its -O1 and above mistype an arithmetic
-// expression used directly as an operand of a bitwise operator or a shift and
-// refuse the file ("& takes int operands, and this one is a pointer"); the
-// reproducer and the shapes that avoid it are in AGENTS.md. The lane stays at
-// -O0 until that is fixed, because a lane that cannot build is not a lane.
+// vcc is built at -O2 like the rest of the matrix. It used to be pinned to
+// -O0 over a bug that mistyped an arithmetic operand of a bitwise operator;
+// vanadiume/vcc#9 was fixed in PR #10, and the lane moved back.
 //
 // The compilers are found by name. vcc is looked for through $VCC, then PATH,
 // then ../vcc/vcc, which is where it sits in a vanadium checkout.
@@ -113,8 +111,8 @@ fn usage() {
 	println('  --cc NAME       vcc, gcc or clang (default: vcc, gcc, clang)')
 	println('  --require NAME  with check, a compiler whose absence is a failure')
 	println('  --portable      use the portable clz path (-DLIBVCC_PORTABLE=1)')
-	println('  --debug         -O0 -g on every compiler except vcc, which is -O0')
-	println('  --release       -O2 on every compiler except vcc (default)')
+	println('  --debug         -O0 -g on every compiler')
+	println('  --release       -O2 on every compiler (default)')
 	println('  -v, --verbose   print each command before it runs')
 }
 
@@ -301,9 +299,7 @@ fn build_tests(opts Options, compiler Compiler, archive string) ?string {
 
 fn flags(opts Options, compiler Compiler) []string {
 	mut out := ['-std=gnu89', '-Iinclude']
-	if compiler.name == 'vcc' {
-		out << '-O0'
-	} else if opts.release {
+	if opts.release {
 		out << '-O2'
 	} else {
 		out << ['-O0', '-g']

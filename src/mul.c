@@ -7,9 +7,6 @@
  * into 16-bit halves and add four products that do fit in a word. On a
  * 32-bit target a 64-bit multiplication compiles to a call to __muldi3, so
  * the helper cannot be written with the operation it provides.
- *
- * The intermediate sum is named because vcc's -O1 and above mistype an
- * arithmetic expression used directly as the left operand of a shift.
  */
 
 static unsigned long long mul32(unsigned int a, unsigned int b)

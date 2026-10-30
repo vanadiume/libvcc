@@ -5,11 +5,6 @@
  * The counts answer the width for zero. gcc's __builtin_clzll leaves zero
  * undefined, so the guard is not an optimization; a helper that was handed
  * zero has to answer something.
- *
- * The clear-lowest-bit loops keep the subtraction in a named temporary. vcc's
- * -O1 and above mistype an arithmetic expression used directly as an operand
- * of &, |, ^ or a shift, and reports it as a pointer; a named temporary is
- * the shape it reads. AGENTS.md has the reproducer.
  */
 
 int __clzsi2(unsigned int x)
