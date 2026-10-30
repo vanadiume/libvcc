@@ -73,9 +73,10 @@ Measured on vcc 0.0.2, gcc 16.2.1 and clang 23.1.3.
   `unsigned long long f(unsigned long long x) { return x & (x - 1); }` with
   `vcc -std=gnu89 -O2 -c`: `unsupported: & takes int operands, and this one is a
   pointer`. The same file at -O0 compiles, and naming the subtraction in a
-  temporary (`y = x - 1; return x & y;`) compiles at -O2 as well. `build.vsh`
-  keeps the vcc lane at -O0 until this is fixed; `src/bits.c` and `src/mul.c`
-  use the temporary shape anyway, so they build on the day the lane moves.
+  temporary (`y = x - 1; return x & y;`) compiles at -O2 as well. The bug is
+  filed as vanadiume/vcc#9. `build.vsh` keeps the vcc lane at -O0 until it is
+  fixed; `src/bits.c` and `src/mul.c` use the temporary shape anyway, so they
+  build on the day the lane moves.
 - **vcc defines `__GNUC__` in a GNU dialect.** Asking `__GNUC__` first reads vcc
   as gcc. `compiler.h` asks `__VCC__` first for that reason.
 - **vcc's `__STDC_VERSION__` is 199901L in every mode.** It cannot tell you
