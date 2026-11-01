@@ -17,7 +17,8 @@ int main(void)
 		{ "shift", libvcc_test_shift },
 		{ "shift128", libvcc_test_shift128 },
 		{ "bits", libvcc_test_bits },
-		{ "mul", libvcc_test_mul }
+		{ "mul", libvcc_test_mul },
+		{ "mul128", libvcc_test_mul128 }
 	};
 	unsigned long i;
 	unsigned long long checks, failures;

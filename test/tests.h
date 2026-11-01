@@ -8,5 +8,6 @@ void libvcc_test_shift(void);
 void libvcc_test_shift128(void);
 void libvcc_test_bits(void);
 void libvcc_test_mul(void);
+void libvcc_test_mul128(void);
 
 #endif /* LIBVCC_TESTS_H */
