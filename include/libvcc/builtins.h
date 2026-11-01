@@ -19,10 +19,11 @@
  * language gets its own file and its own discussion rather than a dependency
  * added to the archive.
  *
- * Division by zero is not defined by the ABI. __udivmoddi4 and
- * __udivmodsi4 answer zero with the remainder set to the dividend, so a
- * caller that divides by zero gets a wrong number and not a trap. A compiler
- * is expected to have diagnosed the constant case before it emitted a call.
+ * Division by zero is not defined by the ABI. __udivmoddi4,
+ * __udivmodsi4 and __udivmodti4 answer zero with the remainder set to the
+ * dividend, and __divmodti4 does the same for a signed pair, so a caller that
+ * divides by zero gets a wrong number and not a trap. A compiler is expected
+ * to have diagnosed the constant case before it emitted a call.
  */
 
 extern long long __divdi3(long long a, long long b);
@@ -80,6 +81,15 @@ typedef struct libvcc_u128 {
 	unsigned long long lo;
 	unsigned long long hi;
 } libvcc_u128;
+
+extern libvcc_u128 __udivmodti4(libvcc_u128 n, libvcc_u128 d,
+                                libvcc_u128 *rem);
+extern libvcc_u128 __udivti3(libvcc_u128 n, libvcc_u128 d);
+extern libvcc_u128 __umodti3(libvcc_u128 n, libvcc_u128 d);
+extern libvcc_u128 __divmodti4(libvcc_u128 a, libvcc_u128 b,
+                               libvcc_u128 *rem);
+extern libvcc_u128 __divti3(libvcc_u128 a, libvcc_u128 b);
+extern libvcc_u128 __modti3(libvcc_u128 a, libvcc_u128 b);
 
 /* Counts are 0 through 127. Anything else is outside the ABI and not
    tested; a count of 128 or more answers what libgcc answers, which is zero

@@ -13,6 +13,7 @@ int main(void)
 	static const struct libvcc_test_group groups[] = {
 		{ "div64", libvcc_test_div64 },
 		{ "div32", libvcc_test_div32 },
+		{ "div128", libvcc_test_div128 },
 		{ "shift", libvcc_test_shift },
 		{ "shift128", libvcc_test_shift128 },
 		{ "bits", libvcc_test_bits },
