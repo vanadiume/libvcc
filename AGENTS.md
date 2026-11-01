@@ -84,12 +84,13 @@ Measured on vcc 0.0.2, gcc 16.2.1 and clang 23.1.3.
   stored`; a 32-bit loop counter fixes it. This is the same family as the -O1
   bug, and why that loop declares `k`.
 - **vcc has `__int128` as a type and not a value.** It parses the type and sizes
-  it; a division of two values above 2^64 does not answer the quotient, and a
-  right shift by 64 or more answers the wrong half, both measured on 0.0.2. That
-  is why the 128-bit helpers take the two-word pair and why `src/` never spells
-  the type. `test/abi128.c` does, behind `LIBVCC_HAVE_INT128`, because a caller
-  compiled by gcc or clang is the only thing that can show the pair and the type
-  are the same object on the wire.
+  it, and an operation that needs its high word answers with something else: the
+  high word of a division or of a right shift is wrong at `-O0` and `-O2`
+  (vanadiume/vcc#13), while a left shift, a load, a store and a narrowing are
+  right. That is why the 128-bit helpers take the two-word pair and why `src/`
+  never spells the type. `test/abi128.c` does, behind `LIBVCC_HAVE_INT128`,
+  because a caller compiled by gcc or clang is the only thing that can show the
+  pair and the type are the same object on the wire.
 - **gcc and clang need `-fno-stack-protector` here.** With the distribution
   defaults measured, `__udivmoddi4`'s address-taken remainder gets a canary and
   the object gains an undefined `__stack_chk_fail`. `build.vsh` passes

@@ -48,10 +48,9 @@
 /*
  * A 128-bit value, as opposed to a 128-bit type.
  *
- * vcc parses unsigned __int128 and sizes it, and does not compute with it:
- * measured on vcc 0.0.2, a division of two values above 2^64 answers a number
- * that is not the quotient, and a right shift by 64 or more answers the wrong
- * half. gcc and clang compute both.
+ * vcc parses unsigned __int128 and sizes it, and does not compute with it: the
+ * high word of a division or of a right shift is not the answer's high word, at
+ * -O0 and -O2 alike (vanadiume/vcc#13). gcc and clang compute both.
  *
  * No source file in src/ uses the type: the helpers take the two-word pair in
  * include/libvcc/builtins.h and do their work a word at a time, which is what

@@ -93,10 +93,10 @@ Measured with the compilers this tree was bootstrapped on: vcc 0.0.2, gcc
 - **vcc** identifies itself with `__VCC__`. That is asked first, because vcc also
   defines `__GNUC__` in a GNU dialect. Its lane is built at `-O2` like the other
   two, which needs a vcc built after the optimizer fix in vanadiume/vcc#10.
-  It parses `unsigned __int128` and does not compute with it: on 0.0.2 a
-  division of two values above 2^64 answers a number that is not the quotient,
-  and a right shift by 64 or more answers the wrong half. Nothing in `src/`
-  spells the type; the 128-bit helpers take the pair instead.
+  It parses `unsigned __int128` and does not compute with it: the high word of
+  a 128-bit division or of a right shift is not the high word of the answer, at
+  `-O0` and `-O2` alike (vanadiume/vcc#13). Nothing in `src/` spells the type;
+  the 128-bit helpers take the pair instead.
 - **gcc** and **clang** are built at `-O2` with `-ffreestanding
   -fno-stack-protector`, so the archive stays free of libc. Distribution
   defaults would otherwise put `__stack_chk_fail` in two objects.
