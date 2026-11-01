@@ -45,4 +45,24 @@
 #define LIBVCC_HAVE_BUILTIN_CLZLL 1
 #endif
 
+/*
+ * A 128-bit value, as opposed to a 128-bit type.
+ *
+ * vcc parses unsigned __int128 and sizes it, and does not compute with it:
+ * measured on vcc 0.0.2, a division of two values above 2^64 answers a number
+ * that is not the quotient, and a right shift by 64 or more answers the wrong
+ * half. gcc and clang compute both.
+ *
+ * No source file in src/ uses the type: the helpers take the two-word pair in
+ * include/libvcc/builtins.h and do their work a word at a time, which is what
+ * makes them buildable here. The gate is for test/abi128.c, which has to spell
+ * the type the compiler emits a call with, because only a caller's own type can
+ * show that the pair and the type are the same object on the wire.
+ */
+#if defined(LIBVCC_COMPILER_VCC)
+#define LIBVCC_HAVE_INT128 0
+#else
+#define LIBVCC_HAVE_INT128 1
+#endif
+
 #endif /* LIBVCC_COMPILER_H */
