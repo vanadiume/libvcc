@@ -61,4 +61,31 @@ extern unsigned long long __bswapdi2(unsigned long long x);
 /* The low 64 bits of the product, which is all the ABI asks for. */
 extern long long __muldi3(long long a, long long b);
 
+/*
+ * The 128-bit ABI.
+ *
+ * libgcc's TImode helpers take a 128-bit value as one object. The compiler
+ * this library exists for parses the type but has no values of that width, so
+ * the spelling here is the pair itself: lo is the low 64 bits, hi the high
+ * ones. That is how the value lies in memory, and on x86-64 SysV it is how it
+ * travels in a register pair as well, so the machine ABI is still libgcc's and
+ * a call emitted by gcc or clang reaches these definitions. test/abi128.c
+ * measures that with the compilers that can spell the type.
+ *
+ * The signed helpers take the same pair. Two's complement is the low word plus
+ * the high word, so __divti3 and __udivti3 have the same argument type and
+ * differ in what they make of it.
+ */
+typedef struct libvcc_u128 {
+	unsigned long long lo;
+	unsigned long long hi;
+} libvcc_u128;
+
+/* Counts are 0 through 127. Anything else is outside the ABI and not
+   tested; a count of 128 or more answers what libgcc answers, which is zero
+   for the two logical shifts and the sign for the arithmetic one. */
+extern libvcc_u128 __ashlti3(libvcc_u128 a, int b);
+extern libvcc_u128 __ashrti3(libvcc_u128 a, int b);
+extern libvcc_u128 __lshrti3(libvcc_u128 a, int b);
+
 #endif /* LIBVCC_BUILTINS_H */

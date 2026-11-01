@@ -23,6 +23,11 @@ void libvcc_test_check_ll(const char *file, int line, const char *what,
 void libvcc_test_check_true(const char *file, int line, const char *what,
                             int ok);
 
+/* Decimal, to the test binary's stdout. The 128-bit checker prints its own
+   line because a format string wide enough for two words is not something the
+   matrix's compilers all take. */
+void libvcc_test_put_u64(unsigned long long v);
+
 /* xorshift64. The state must not be zero. */
 unsigned long long libvcc_test_random(unsigned long long *state);
 

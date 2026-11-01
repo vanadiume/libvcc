@@ -22,6 +22,11 @@ static void put_u64(unsigned long long v)
 	}
 }
 
+void libvcc_test_put_u64(unsigned long long v)
+{
+	put_u64(v);
+}
+
 static void put_ll(long long v)
 {
 	if (v < 0) {

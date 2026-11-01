@@ -14,6 +14,7 @@ int main(void)
 		{ "div64", libvcc_test_div64 },
 		{ "div32", libvcc_test_div32 },
 		{ "shift", libvcc_test_shift },
+		{ "shift128", libvcc_test_shift128 },
 		{ "bits", libvcc_test_bits },
 		{ "mul", libvcc_test_mul }
 	};
