@@ -94,6 +94,12 @@ extern libvcc_u128 __modti3(libvcc_u128 a, libvcc_u128 b);
 /* The low 128 bits of the product, which is what the ABI asks for. */
 extern libvcc_u128 __multi3(libvcc_u128 a, libvcc_u128 b);
 
+/* Zero is the width of the type: __clzti2(0) is 128. */
+extern int __clzti2(libvcc_u128 x);
+extern int __ctzti2(libvcc_u128 x);
+extern int __popcountti2(libvcc_u128 x);
+extern int __parityti2(libvcc_u128 x);
+
 /* Counts are 0 through 127. Anything else is outside the ABI and not
    tested; a count of 128 or more answers what libgcc answers, which is zero
    for the two logical shifts and the sign for the arithmetic one. */

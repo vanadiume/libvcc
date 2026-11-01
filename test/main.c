@@ -17,6 +17,7 @@ int main(void)
 		{ "shift", libvcc_test_shift },
 		{ "shift128", libvcc_test_shift128 },
 		{ "bits", libvcc_test_bits },
+		{ "bits128", libvcc_test_bits128 },
 		{ "mul", libvcc_test_mul },
 		{ "mul128", libvcc_test_mul128 }
 	};
