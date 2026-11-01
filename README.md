@@ -26,14 +26,27 @@ matrix. Neither the archive name nor the symbol set is a promise yet.
 | 64-bit shifts | `__ashldi3`, `__ashrdi3`, `__lshrdi3` | `src/shift.c` |
 | bit counts and byte order | `__clzsi2`, `__clzdi2`, `__ctzsi2`, `__ctzdi2`, `__popcountsi2`, `__popcountdi2`, `__paritysi2`, `__paritydi2`, `__bswapsi2`, `__bswapdi2` | `src/bits.c` |
 | 64-bit multiply | `__muldi3` | `src/mul.c` |
+| 128-bit division | `__udivmodti4`, `__udivti3`, `__umodti3`, `__divmodti4`, `__divti3`, `__modti3` | `src/div128.c` |
+| 128-bit shifts | `__ashlti3`, `__ashrti3`, `__lshrti3` | `src/shift128.c` |
+| 128-bit bit counts | `__clzti2`, `__ctzti2`, `__popcountti2`, `__parityti2` | `src/bits128.c` |
+| 128-bit multiply | `__multi3` | `src/mul128.c` |
+
+A 128-bit value is libgcc's TImode. The compiler this library is for parses the
+type and has no values of that width, so `libvcc_u128` in the ABI header is the
+two 64-bit words, and every 128-bit helper works a word at a time. That is also
+the machine ABI: on x86-64 SysV the pair and `unsigned __int128` travel in the
+same registers, in the same order. `test/abi128.c` is the measurement. It
+declares these symbols with the compiler's own type and checks the answers
+against instructions the library does not use: a shift, a multiply, and
+divisions whose divisor is a power of two.
 
 `include/libvcc/builtins.h` is the ABI: the declarations, the count ranges, and
 the one case the ABI does not define. `include/libvcc/compiler.h` says which
 compiler is reading the tree and which extension it gets.
 
 The archive calls nothing. There is no libc in it, no system header, no abort.
-`nm -u` on the archive names `__clzdi2` and `__clzsi2` and nothing else, and
-those two are calls between objects in the same archive.
+`nm -u` names only calls between objects in the same archive: the clz helpers,
+and the 64-bit counts the 128-bit ones are built from.
 
 ## Build
 
@@ -80,6 +93,10 @@ Measured with the compilers this tree was bootstrapped on: vcc 0.0.2, gcc
 - **vcc** identifies itself with `__VCC__`. That is asked first, because vcc also
   defines `__GNUC__` in a GNU dialect. Its lane is built at `-O2` like the other
   two, which needs a vcc built after the optimizer fix in vanadiume/vcc#10.
+  It parses `unsigned __int128` and does not compute with it: on 0.0.2 a
+  division of two values above 2^64 answers a number that is not the quotient,
+  and a right shift by 64 or more answers the wrong half. Nothing in `src/`
+  spells the type; the 128-bit helpers take the pair instead.
 - **gcc** and **clang** are built at `-O2` with `-ffreestanding
   -fno-stack-protector`, so the archive stays free of libc. Distribution
   defaults would otherwise put `__stack_chk_fail` in two objects.
@@ -101,12 +118,12 @@ what VCC will link against when it has a target or an operation that needs one.
 
 ## What is not here yet
 
-- **128-bit helpers** (`__divti3`, `__udivti3`, and the rest). VCC parses
-  `__int128` but has no values of that width: a parameter of the type is refused
-  by name, and an object can be stored and narrowed but not divided. A
-  gcc/clang-only file would compile, and the compiler this library exists for
-  could not call it, so it waits for VCC.
 - **Soft float and the conversions** (`__fixdfdi`, `__floatdidf`, and the rest).
+- **The helpers that trap.** `__addvti3`, `__subvti3`, `__mulvti3`, `__negvti2`
+  and `__absvti2` in libgcc call `abort` when the result does not fit, and this
+  archive calls nothing. A version that handed the caller a flag instead would
+  be a different ABI wearing the same name, so these wait for a decision rather
+  than a file.
 - **Complex helpers.** VCC currently emits the arithmetic for `__muldc3`,
   `__divdc3` and their `long double` relatives inline, because there was no
   library to call. Those are the obvious next things to move here, and moving

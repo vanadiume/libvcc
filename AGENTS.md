@@ -27,15 +27,21 @@ same job.
    be built and run on every compiler in the matrix stays out.
 2. **The archive calls nothing.** No libc, no system header, no `abort`. A helper
    that needs one is a design discussion before it is a link flag. The check is
-   `nm -u target/gcc/libvcc.a`: the only names are `__clzdi2` and `__clzsi2`,
-   which are calls between objects in the archive.
+   `nm -u target/gcc/libvcc.a`: every name it prints is defined by another object
+   in the same archive, and nothing else is.
 3. **The symbol names and signatures are libgcc's.** `__divdi3`, not
    `libvcc_divdi3`; a rename breaks every compiler that emits the call. Internal
-   names carry `libvcc_` or are `static`.
+   names carry `libvcc_` or are `static`. For TImode the C spelling is the
+   two-word pair in `builtins.h`, because no compiler here has a value of that
+   width to declare; the machine ABI is still libgcc's, and `test/abi128.c`
+   measures it with the compiler's own type.
 4. **A helper is not tested against itself.** Division is compared with the
    machine's division, shifts with the machine's shifts, and counts and byte
    swaps with a reference written a different way. A second copy of the
-   algorithm proves only that the copy agrees.
+   algorithm proves only that the copy agrees. 128-bit division has no machine
+   division on this target, so it is checked against the definition instead:
+   `n == q * d + r` with `r < d` fixes the pair, and the product in that
+   identity is one the library does not compute.
 
 ## Commands
 
@@ -61,7 +67,7 @@ compiler named with `--require` that is missing is a failure rather than a skip.
 | `include/libvcc/builtins.h` | the ABI: declarations, count ranges, undefined cases |
 | `src/` | one file per family; a static helper stays in the file that uses it |
 | `src/word.h` | the two halves of a 64-bit value, as macros |
-| `test/` | one file per family, a shared harness, references written independently |
+| `test/` | one file per family, a shared harness, references written independently; `abi128.c` is the caller's side of the 128-bit ABI |
 | `build.vsh` | the whole build; there is no Makefile and no generated input |
 
 ## What costs time
@@ -77,9 +83,13 @@ Measured on vcc 0.0.2, gcc 16.2.1 and clang 23.1.3.
   `unsupported: the value is one this back end cannot size, so it cannot be
   stored`; a 32-bit loop counter fixes it. This is the same family as the -O1
   bug, and why that loop declares `k`.
-- **vcc has `__int128` as a type but no values of that width.** A gcc/clang-only
-  128-bit file would compile and be unusable by the compiler this library exists
-  for.
+- **vcc has `__int128` as a type and not a value.** It parses the type and sizes
+  it; a division of two values above 2^64 does not answer the quotient, and a
+  right shift by 64 or more answers the wrong half, both measured on 0.0.2. That
+  is why the 128-bit helpers take the two-word pair and why `src/` never spells
+  the type. `test/abi128.c` does, behind `LIBVCC_HAVE_INT128`, because a caller
+  compiled by gcc or clang is the only thing that can show the pair and the type
+  are the same object on the wire.
 - **gcc and clang need `-fno-stack-protector` here.** With the distribution
   defaults measured, `__udivmoddi4`'s address-taken remainder gets a canary and
   the object gains an undefined `__stack_chk_fail`. `build.vsh` passes
@@ -90,8 +100,8 @@ Measured on vcc 0.0.2, gcc 16.2.1 and clang 23.1.3.
 
 - `v run build.vsh check` is the whole gate: both clz paths, every available
   compiler, the tests run. It exits non-zero on any failure.
-- `nm -u target/<lane>/libvcc.a` names `__clzdi2` and `__clzsi2` and nothing
-  else. A new name is a new dependency and has to be explained.
+- `nm -u target/<lane>/libvcc.a` names only symbols defined elsewhere in the
+  same archive. A new name is a new dependency and has to be explained.
 - `ar t` shows one object per source file. The archive's defined symbols are the
   ABI in `include/libvcc/builtins.h`, and nothing else is exported.
 - Do not write counts, test totals, or line numbers into this file or the

@@ -84,7 +84,8 @@ the way you would say them, and leave these shapes out:
 A reviewer reads for the failure first: division by zero, the most negative
 value, a shift count at the edge, a target where the operation is the helper
 itself. Then the ABI: is the name libgcc's, is the signature the one a compiler
-emits. Then the dependencies: does `nm -u` still name only the two clz symbols.
+emits. Then the dependencies: does `nm -u` still name only symbols defined by
+objects in the same archive.
 
 ## Where to ask
 
