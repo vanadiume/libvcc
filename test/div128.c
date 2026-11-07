@@ -186,10 +186,8 @@ void libvcc_test_div128(void)
 
 	state = 0x13198a2e03707344ULL;
 	for (i = 0; i < 1500; i++) {
-		n = WIDE(libvcc_test_random(&state),
-		         libvcc_test_random(&state));
-		d = WIDE(libvcc_test_random(&state),
-		         libvcc_test_random(&state));
+		n = libvcc_test_wide_random(&state);
+		d = libvcc_test_wide_random(&state);
 		check_unsigned(n, d);
 	}
 
@@ -202,8 +200,7 @@ void libvcc_test_div128(void)
 		n = WIDE(0xffffffffffffffffULL, 0xffffffffffffffffULL);
 		q = __udivmodti4(n, d, &r);
 		CHECK_WIDE(q, shr_value(n, k));
-		check_unsigned(WIDE(libvcc_test_random(&state),
-		                    libvcc_test_random(&state)), d);
+		check_unsigned(libvcc_test_wide_random(&state), d);
 		check_unsigned(n, d);
 	}
 
@@ -218,10 +215,8 @@ void libvcc_test_div128(void)
 			             WIDE(signed_edges[j].lo, signed_edges[j].hi));
 
 	for (i = 0; i < 1500; i++) {
-		n = WIDE(libvcc_test_random(&state),
-		         libvcc_test_random(&state));
-		d = WIDE(libvcc_test_random(&state),
-		         libvcc_test_random(&state));
+		n = libvcc_test_wide_random(&state);
+		d = libvcc_test_wide_random(&state);
 		check_signed(n, d);
 	}
 

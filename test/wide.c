@@ -12,6 +12,15 @@ libvcc_u128 libvcc_test_wide(unsigned long long lo, unsigned long long hi)
 	return v;
 }
 
+libvcc_u128 libvcc_test_wide_random(unsigned long long *state)
+{
+	libvcc_u128 v;
+
+	v.lo = libvcc_test_random(state);
+	v.hi = libvcc_test_random(state);
+	return v;
+}
+
 void libvcc_test_check_wide(const char *file, int line, const char *what,
                             libvcc_u128 got, libvcc_u128 want)
 {

@@ -52,8 +52,8 @@ void libvcc_test_mul128(void)
 
 	state = 0x082efa98ec4e6c89ULL;
 	for (i = 0; i < 4000; i++) {
-		a = WIDE(libvcc_test_random(&state), libvcc_test_random(&state));
-		b = WIDE(libvcc_test_random(&state), libvcc_test_random(&state));
+		a = libvcc_test_wide_random(&state);
+		b = libvcc_test_wide_random(&state);
 		check(a, b);
 	}
 

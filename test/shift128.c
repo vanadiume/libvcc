@@ -63,8 +63,7 @@ void libvcc_test_shift128(void)
 	state = 0x452821e638d01377ULL;
 	for (b = 0; b < 128; b++) {
 		for (i = 0; i < 8; i++) {
-			a = WIDE(libvcc_test_random(&state),
-			         libvcc_test_random(&state));
+			a = libvcc_test_wide_random(&state);
 			CHECK_WIDE(__ashlti3(a, b), repeat(shl1, a, b));
 			CHECK_WIDE(__lshrti3(a, b), repeat(lshr1, a, b));
 			CHECK_WIDE(__ashrti3(a, b), repeat(ashr1, a, b));

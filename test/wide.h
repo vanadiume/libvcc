@@ -19,6 +19,12 @@
 
 libvcc_u128 libvcc_test_wide(unsigned long long lo, unsigned long long hi);
 
+/* The two words drawn from the stream in the order lo, then hi. Passing two
+   calls of libvcc_test_random as the arguments of one call reads the same
+   stream in whatever order the compiler evaluates them, which differs between
+   the lanes and makes a failure depend on who built the test. */
+libvcc_u128 libvcc_test_wide_random(unsigned long long *state);
+
 void libvcc_test_check_wide(const char *file, int line, const char *what,
                             libvcc_u128 got, libvcc_u128 want);
 

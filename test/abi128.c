@@ -1,5 +1,3 @@
-#include <libvcc/compiler.h>
-
 #include "harness.h"
 
 /*
@@ -10,6 +8,12 @@
  * were not the same object on the wire, these calls would answer numbers a
  * shift does not: the argument registers would be read in the wrong order, or
  * the pointer would be read from the third word instead of the third register.
+ *
+ * Every compiler in the matrix builds and runs this file. vcc is the one that
+ * had to be waited for: 0.0.2 computed a 128-bit division or right shift with
+ * something other than the value's high word (vanadiume/vcc#13, fixed by the
+ * unsigned widening in PR #14), and a caller that cannot compute the answer
+ * cannot compare against it. On 0.0.3 the group runs like the other two.
  *
  * The expected values are the compiler's own arithmetic, which is not the
  * library's: shifts and a multiply are instructions here, and the division
@@ -23,8 +27,6 @@
 		CHECK_U64((unsigned long long)((got) >> 64), \
 		          (unsigned long long)((want) >> 64)); \
 	} while (0)
-
-#if LIBVCC_HAVE_INT128
 
 typedef unsigned __int128 u128;
 typedef __int128 i128;
@@ -62,7 +64,11 @@ static unsigned long long next(void)
 
 static u128 make(void)
 {
-	return ((u128)next() << 64) | next();
+	unsigned long long lo, hi;
+
+	lo = next();
+	hi = next();
+	return ((u128)hi << 64) | lo;
 }
 
 static int ref_popcount(u128 v)
@@ -171,17 +177,3 @@ void libvcc_test_abi128(void)
 		}
 	}
 }
-
-#else /* vcc */
-
-void libvcc_test_abi128(void)
-{
-	/*
-	 * Nothing to spell. vcc parses the type and has no values of its width,
-	 * so a call emitted by vcc is not a thing that exists yet; the pair the
-	 * library defines is still built and still tested by the groups beside
-	 * this one, through the ABI header.
-	 */
-}
-
-#endif /* LIBVCC_HAVE_INT128 */

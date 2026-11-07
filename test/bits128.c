@@ -129,8 +129,7 @@ void libvcc_test_bits128(void)
 
 	state = 0xa4093822299f31d0ULL;
 	for (i = 0; i < 2000; i++)
-		check(WIDE(libvcc_test_random(&state),
-		           libvcc_test_random(&state)));
+		check(libvcc_test_wide_random(&state));
 
 	/* And values whose high word is zero, for the branch that adds 64. */
 	for (i = 0; i < 500; i++)
