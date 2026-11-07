@@ -32,9 +32,8 @@ same job.
 3. **The symbol names and signatures are libgcc's.** `__divdi3`, not
    `libvcc_divdi3`; a rename breaks every compiler that emits the call. Internal
    names carry `libvcc_` or are `static`. For TImode the C spelling is the
-   two-word pair in `builtins.h`, because no compiler here has a value of that
-   width to declare; the machine ABI is still libgcc's, and `test/abi128.c`
-   measures it with the compiler's own type.
+   two-word pair in `builtins.h` while the machine ABI stays libgcc's;
+   `test/abi128.c` measures the pair against the compiler's own type.
 4. **A helper is not tested against itself.** Division is compared with the
    machine's division, shifts with the machine's shifts, and counts and byte
    swaps with a reference written a different way. A second copy of the
@@ -83,14 +82,14 @@ Measured on vcc 0.0.2, gcc 16.2.1 and clang 23.1.3.
   `unsupported: the value is one this back end cannot size, so it cannot be
   stored`; a 32-bit loop counter fixes it. This is the same family as the -O1
   bug, and why that loop declares `k`.
-- **vcc has `__int128` as a type and not a value.** It parses the type and sizes
-  it, and an operation that needs its high word answers with something else: the
-  high word of a division or of a right shift is wrong at `-O0` and `-O2`
-  (vanadiume/vcc#13), while a left shift, a load, a store and a narrowing are
-  right. That is why the 128-bit helpers take the two-word pair and why `src/`
-  never spells the type. `test/abi128.c` does, behind `LIBVCC_HAVE_INT128`,
-  because a caller compiled by gcc or clang is the only thing that can show the
-  pair and the type are the same object on the wire.
+- **vcc's 128-bit values arrived in 0.0.3.** Until then a division or a right
+  shift of `unsigned __int128` used something other than the value's high word
+  (vanadiume/vcc#13, fixed by the unsigned widening in PR #14), so
+  `test/abi128.c` sat behind `LIBVCC_HAVE_INT128`. The gate is gone and the file
+  runs in every lane. `src/` still never spells the type: a helper written with
+  the operation it provides calls itself on the target that lacks the
+  instruction. A vcc-compiled program does not reach these helpers either,
+  because vcc inlines a 128-bit division.
 - **gcc and clang need `-fno-stack-protector` here.** With the distribution
   defaults measured, `__udivmoddi4`'s address-taken remainder gets a canary and
   the object gains an undefined `__stack_chk_fail`. `build.vsh` passes

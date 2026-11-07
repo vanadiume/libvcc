@@ -31,14 +31,14 @@ matrix. Neither the archive name nor the symbol set is a promise yet.
 | 128-bit bit counts | `__clzti2`, `__ctzti2`, `__popcountti2`, `__parityti2` | `src/bits128.c` |
 | 128-bit multiply | `__multi3` | `src/mul128.c` |
 
-A 128-bit value is libgcc's TImode. The compiler this library is for parses the
-type and has no values of that width, so `libvcc_u128` in the ABI header is the
-two 64-bit words, and every 128-bit helper works a word at a time. That is also
-the machine ABI: on x86-64 SysV the pair and `unsigned __int128` travel in the
-same registers, in the same order. `test/abi128.c` is the measurement. It
-declares these symbols with the compiler's own type and checks the answers
-against instructions the library does not use: a shift, a multiply, and
-divisions whose divisor is a power of two.
+A 128-bit value is libgcc's TImode. `libvcc_u128` in the ABI header is the two
+64-bit words, and every 128-bit helper works a word at a time, so none of them
+is written with the operation it provides. That is also the machine ABI: on
+x86-64 SysV the pair and `unsigned __int128` travel in the same registers, in
+the same order. `test/abi128.c` is the measurement. It declares these symbols
+with the compiler's own type, in every lane, and checks the answers against
+instructions the library does not use: a shift, a multiply, and divisions whose
+divisor is a power of two.
 
 `include/libvcc/builtins.h` is the ABI: the declarations, the count ranges, and
 the one case the ABI does not define. `include/libvcc/compiler.h` says which
@@ -87,16 +87,17 @@ ANSI C89, plus the GNU extensions VCC implements. In practice:
 
 ## The matrix
 
-Measured with the compilers this tree was bootstrapped on: vcc 0.0.2, gcc
-16.2.1, clang 23.1.3. `v run build.vsh check` prints the versions it finds.
+Measured with vcc 0.0.3, gcc 16.2.1 and clang 23.1.3, the compilers this tree is
+bootstrapped on. `v run build.vsh check` prints the versions it finds.
 
 - **vcc** identifies itself with `__VCC__`. That is asked first, because vcc also
   defines `__GNUC__` in a GNU dialect. Its lane is built at `-O2` like the other
   two, which needs a vcc built after the optimizer fix in vanadiume/vcc#10.
-  It parses `unsigned __int128` and does not compute with it: the high word of
-  a 128-bit division or of a right shift is not the high word of the answer, at
-  `-O0` and `-O2` alike (vanadiume/vcc#13). Nothing in `src/` spells the type;
-  the 128-bit helpers take the pair instead.
+  It is also the compiler the 128-bit helpers had to wait for: 0.0.2 computed a
+  division or a right shift of `unsigned __int128` with something other than the
+  value's high word (vanadiume/vcc#13, fixed by the unsigned widening in PR
+  #14), so `test/abi128.c` sat behind a gate until 0.0.3. It inlines a 128-bit
+  division, so a program it compiles does not call these helpers yet.
 - **gcc** and **clang** are built at `-O2` with `-ffreestanding
   -fno-stack-protector`, so the archive stays free of libc. Distribution
   defaults would otherwise put `__stack_chk_fail` in two objects.
