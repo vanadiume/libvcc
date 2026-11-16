@@ -10,6 +10,9 @@
 // assumed. `check` is the gate; a missing compiler is reported, and one named
 // with --require is a failure.
 //
+// The version the tree publishes is in VERSION, one line, and the banner is
+// read from it.
+//
 // vcc is built at -O2 like the rest of the matrix. It used to be pinned to
 // -O0 over a bug that mistyped an arithmetic operand of a bitwise operator;
 // vanadiume/vcc#9 was fixed in PR #10, and the lane moved back.
@@ -26,6 +29,7 @@ const archive_name = 'libvcc.a'
 struct Options {
 mut:
 	root     string
+	version  string
 	step     string
 	cc       string
 	require  []string
@@ -56,7 +60,12 @@ fn main() {
 		|e| eprintln('build: cannot enter ${opts.root}: ${e}')
 		exit(2)
 	}
+	opts.version = read_version()
 	match opts.step {
+		'version' {
+			println('libvcc ${opts.version}')
+			exit(0)
+		}
 		'check' {
 			outcome := run_check(opts)
 			exit(summary('check', outcome))
@@ -76,7 +85,7 @@ fn main() {
 		eprintln('       name one with --cc, or set VCC to a vcc binary')
 		exit(2)
 	}
-	println('libvcc: ${compiler.name} (${compiler.version})')
+	println('libvcc ${opts.version} (${compiler.version})')
 	if opts.step == '' {
 		if !run_lane(opts, compiler) {
 			exit(1)
@@ -113,6 +122,7 @@ fn usage() {
 	println('  --portable      use the portable clz path (-DLIBVCC_PORTABLE=1)')
 	println('  --debug         -O0 -g on every compiler')
 	println('  --release       -O2 on every compiler (default)')
+	println('  --version       print the version and exit')
 	println('  -v, --verbose   print each command before it runs')
 }
 
@@ -122,6 +132,8 @@ fn parse(raw []string) ?Options {
 		a := raw[i]
 		if a == '-h' || a == '--help' || a == '--list' || a == '-l' {
 			opts.step = 'list'
+		} else if a == '--version' {
+			opts.step = 'version'
 		} else if a == '--debug' {
 			opts.release = false
 		} else if a == '--release' {
@@ -241,6 +253,14 @@ fn version_of(path string) string {
 	return path
 }
 
+fn read_version() string {
+	text := os.read_file('VERSION') or {
+		eprintln('build: VERSION is missing')
+		exit(2)
+	}
+	return text.trim_space()
+}
+
 fn run_lane(opts Options, compiler Compiler) bool {
 	archive := build_library(opts, compiler) or { return false }
 	test_binary := build_tests(opts, compiler, archive) or { return false }
@@ -354,6 +374,7 @@ fn run(opts Options, command []string) bool {
 
 fn run_check(opts Options) Outcome {
 	mut outcome := Outcome{}
+	println('libvcc ${opts.version}')
 	mut missing := []string{}
 	for name in matrix {
 		compiler := resolve(name) or {
