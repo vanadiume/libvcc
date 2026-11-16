@@ -20,7 +20,9 @@ int main(void)
 		{ "bits128", libvcc_test_bits128 },
 		{ "mul", libvcc_test_mul },
 		{ "mul128", libvcc_test_mul128 },
-		{ "abi128", libvcc_test_abi128 }
+		{ "abi128", libvcc_test_abi128 },
+		{ "complex", libvcc_test_complex },
+		{ "abi_complex", libvcc_test_abi_complex }
 	};
 	unsigned long i;
 	unsigned long long checks, failures;
