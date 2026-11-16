@@ -147,7 +147,6 @@ void libvcc_test_complex(void)
 	CHECK_F(__real__ f, -5.0f);
 	CHECK_F(__imag__ f, 10.0f);
 
-#if LIBVCC_HAVE_COMPLEX_LONG_DOUBLE
 	/* The extended width, where the components are the x87 stack's. */
 	x.z = __divxc3(1.0L, 2.0L, 3.0L, 4.0L);
 	CHECK_X(x.parts.r, 0.439999999999999999998L);
@@ -168,5 +167,4 @@ void libvcc_test_complex(void)
 	x.z = __mulxc3(1.0L, 2.0L, 3.0L, 4.0L);
 	CHECK_X(x.parts.r, -5.0L);
 	CHECK_X(x.parts.i, 10.0L);
-#endif
 }

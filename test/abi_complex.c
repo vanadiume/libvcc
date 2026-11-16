@@ -18,9 +18,6 @@
  * back in xmm0 and xmm1, a float pair packed in xmm0, and a long double pair on
  * the x87 stack, st0 and st1. If the definition put any of them anywhere else,
  * these calls would read whatever was in the register or slot instead.
- *
- * The long double case is behind LIBVCC_HAVE_COMPLEX_LONG_DOUBLE, which
- * compiler.h explains: vcc cannot read a value of that type back yet.
  */
 
 #define CHECK_D(got, want) \
@@ -52,9 +49,7 @@ void libvcc_test_abi_complex(void)
 {
 	double _Complex d, wantd;
 	float _Complex f, wantf;
-#if LIBVCC_HAVE_COMPLEX_LONG_DOUBLE
 	long double _Complex x, wantx;
-#endif
 
 	d = __muldc3(1.0, 2.0, 3.0, 4.0);
 	wantd = (1.0 + 2.0i) * (3.0 + 4.0i);
@@ -76,7 +71,6 @@ void libvcc_test_abi_complex(void)
 	CHECK_F(__real__ f, __real__ wantf);
 	CHECK_F(__imag__ f, __imag__ wantf);
 
-#if LIBVCC_HAVE_COMPLEX_LONG_DOUBLE
 	x = __mulxc3(1.0L, 2.0L, 3.0L, 4.0L);
 	wantx = (1.0L + 2.0Li) * (3.0L + 4.0Li);
 	CHECK(__real__ x == __real__ wantx);
@@ -86,5 +80,4 @@ void libvcc_test_abi_complex(void)
 	wantx = (1.0L + 2.0Li) / (3.0L + 4.0Li);
 	CHECK(__real__ x == __real__ wantx);
 	CHECK(__imag__ x == __imag__ wantx);
-#endif
 }

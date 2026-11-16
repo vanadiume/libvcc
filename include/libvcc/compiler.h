@@ -45,27 +45,4 @@
 #define LIBVCC_HAVE_BUILTIN_CLZLL 1
 #endif
 
-/*
- * A `long double _Complex` value is returned on the x87 stack, in st0 and st1,
- * rather than through a hidden pointer the way a struct of that size travels.
- * vcc 0.0.4-beta can return one from a function it compiled, but it cannot read
- * one back: a component read from a variable, from a call's return, or from a
- * union that holds the type answers the bytes of something else. Measured on
- * the binary this tree is built with:
- *
- *   long double _Complex z = 3.0L + 4.0L * I;
- *   printf ("%.21Lg\n", __real__ z);
- *
- * prints 1.68187239751872060409e-4932 where gcc prints 3, and a call to
- * __mulxc3 from vcc-compiled code answers 8.99158450602931663649e-4742 in
- * place of -5. The helper definitions themselves are built by vcc and answer a
- * caller of another compiler correctly; this gate keeps the checks that read
- * the type back out of vcc's lane.
- */
-#if defined(LIBVCC_COMPILER_VCC)
-#define LIBVCC_HAVE_COMPLEX_LONG_DOUBLE 0
-#else
-#define LIBVCC_HAVE_COMPLEX_LONG_DOUBLE 1
-#endif
-
 #endif /* LIBVCC_COMPILER_H */
