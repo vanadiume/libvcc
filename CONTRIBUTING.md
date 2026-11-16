@@ -64,7 +64,7 @@ Subjects are `area: the thing that changed`, lowercase, no trailing period. One
 logical change per commit, each one building and passing `v run build.vsh check`
 on its own. The body says why the change happened and what the old behavior was.
 
-Areas in use: `int`, `bits`, `shift`, `mul`, `tree`, `docs`.
+Areas in use: `int`, `bits`, `shift`, `mul`, `complex`, `tree`, `docs`.
 
 ## Prose
 
