@@ -107,4 +107,31 @@ extern libvcc_u128 __ashlti3(libvcc_u128 a, int b);
 extern libvcc_u128 __ashrti3(libvcc_u128 a, int b);
 extern libvcc_u128 __lshrti3(libvcc_u128 a, int b);
 
+/*
+ * The complex arithmetic helpers.
+ *
+ * A compiler emits one of these for `a * b` or `a / b` on a complex type it
+ * has no instruction for. The arguments are the four components as scalars,
+ * the dividend's real and imaginary parts first: __muldc3 (ar, ai, br, bi).
+ * The value is handed back the way a complex value travels rather than as a
+ * struct: xmm0 and xmm1 for double, xmm0 packed for float, and st0 for the
+ * real part and st1 for the imaginary one when the component is a long
+ * double. test/abi_complex.c declares these with the compiler's own complex
+ * type and compares them with the operator.
+ *
+ * Division is defined here where the integer helpers leave it open, because
+ * a complex quotient of zero is a value and not a wrong number: a nonzero
+ * divided by zero is infinite, an infinity divided by a finite value is
+ * infinite, and a finite value divided by an infinity is zero. NaN over NaN
+ * is NaN.
+ */
+extern double _Complex __muldc3(double a, double b, double c, double d);
+extern double _Complex __divdc3(double a, double b, double c, double d);
+extern float _Complex __mulsc3(float a, float b, float c, float d);
+extern float _Complex __divsc3(float a, float b, float c, float d);
+extern long double _Complex __mulxc3(long double a, long double b, long double c,
+                                     long double d);
+extern long double _Complex __divxc3(long double a, long double b, long double c,
+                                     long double d);
+
 #endif /* LIBVCC_BUILTINS_H */

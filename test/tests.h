@@ -11,5 +11,7 @@ void libvcc_test_bits128(void);
 void libvcc_test_mul(void);
 void libvcc_test_mul128(void);
 void libvcc_test_abi128(void);
+void libvcc_test_complex(void);
+void libvcc_test_abi_complex(void);
 
 #endif /* LIBVCC_TESTS_H */
